@@ -1,23 +1,18 @@
 package com.example.jdbc_learning.repository;
-
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @org.springframework.stereotype.Repository
 public class Repository {
-    private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
-
-    public Repository(NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
-        this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
-    }
+    @PersistenceContext
+    private EntityManager entityManager;
 
     private static String read(String scriptFileName) {
         try (InputStream is = new ClassPathResource(scriptFileName).getInputStream();
@@ -28,11 +23,12 @@ public class Repository {
         }
     }
 
-    public List<String> returnProductNameByCustomerName(String customerName) {
-        String scriptProductNameByCustomerName = read("selection_by_name.sql");
-        return (namedParameterJdbcTemplate.queryForList(scriptProductNameByCustomerName,
-                Map.of("name", customerName),
-                String.class));
+    public List returnProductNameByCustomerName(String customerName) {
+        String query = read("selection_by_name.sql");
+        return entityManager
+                .createQuery(query)
+                .setParameter("name", customerName)
+                .getResultList();
 
     }
 

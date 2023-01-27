@@ -1,5 +1,4 @@
-select product_name
-from homework.customers c
-left join homework.orders o
-on c.id = o.customer_id
-where c.name = lower(:name);
+SELECT o.productName
+from Orders o
+         join Customers c on c.id = o.customer.id
+where c.name = :name
